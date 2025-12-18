@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Netlify版-公众号封面提取</title>
+    <style>
+        body { font-family: sans-serif; padding: 50px; background: #f0f2f5; text-align: center; }
+        .box { background: white; padding: 40px; border-radius: 10px; max-width: 500px; margin: 0 auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        input { width: 80%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        button { padding: 10px 20px; background: #07c160; color: white; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px;}
+        #result { margin-top: 20px; }
+        img { max-width: 100%; border-radius: 5px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2>🌱 封面图提取 (Netlify版)</h2>
+        <input type="text" id="urlInput" placeholder="粘贴公众号文章链接...">
+        <br>
+        <button onclick="getCover()">提取封面</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        async function getCover() {
+            const url = document.getElementById('urlInput').value;
+            const resultDiv = document.getElementById('result');
+            
+            if (!url) return;
+            
+            resultDiv.innerHTML = "正在提取...";
+
+            // 调用我们写的 Python 函数
+            try {
+                const response = await fetch(`/.netlify/functions/cover?url=${encodeURIComponent(url)}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <p>提取成功！</p >
+                        < img src="${data.url}">
+                        <br><br>
+                        <a href=" " target="_blank">查看原图</a >
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<p style="color:red">错误: ${data.error}</p >`;
+                }
+            } catch (e) {
+                resultDiv.innerHTML = `<p style="color:red">网络请求失败</p >`;
+            }
+        }
+    </script>
+</body>
+</html>
